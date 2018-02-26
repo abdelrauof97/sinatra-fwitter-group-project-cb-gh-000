@@ -3,7 +3,7 @@ require './config/environment'
 class TweetsController < ApplicationController
     
   get '/tweets' do 
-    erb :index
+    erb :'/tweets/index'
   end 
     
   get '/tweets/new' do 
@@ -23,6 +23,17 @@ class TweetsController < ApplicationController
   get '/tweets/:id/edit' do 
     @tweet = Tweet.find(params[:id])
     erb :'/tweets/edit'
+  end
+  
+  patch '/tweets/:id' do 
+    @tweet = Tweet.find(params[:id])
+    @tweet.update(content: params[:content])
+    redirect "/tweets/#{@tweet.id}"
+  end
+  
+  post '/tweets/:id/delete' do 
+    @tweet = Tweet.find(params[:id])
+    @tweet.delete
   end
     
 end 

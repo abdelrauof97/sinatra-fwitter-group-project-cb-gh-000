@@ -2,9 +2,10 @@ require './config/environment'
 
 class ApplicationController < Sinatra::Base
   
-  enable :sessions
-  
+
   configure do
+    enable :sessions unless test?
+    set :session_secret, "secret"
     set :public_folder, 'public'
     set :views, 'app/views'
   end
