@@ -7,7 +7,7 @@ class UsersController < ApplicationController
   end
   
   post '/signup' do 
-    @user = User.create(username: params[:username], email: params[:email], password: params[:password]) 
+    @user = User.create(username: User.slug(params[:username]), email: params[:email], password: params[:password]) 
     if @user 
       session[:id] = @user.id 
       erb :'users/signedup'
@@ -21,7 +21,7 @@ class UsersController < ApplicationController
   end 
   
   post '/login' do 
-    @user = User.find_by(username: params[:username])
+    @user = User.find_by_slug(params[:username])
     if @user && @user.authenticate(params[:password])
       session[:id] = @user.id
       erb :'users/loggedin'
