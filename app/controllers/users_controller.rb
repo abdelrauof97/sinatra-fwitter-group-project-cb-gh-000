@@ -1,38 +1,53 @@
 require './config/environment'
+require_relative '../helpers/helpers.rb'
+require 'rack-flash'
 
 class UsersController < ApplicationController
+  
+  use Rack::Flash
 
   get '/signup' do 
-    erb :'/users/signup' 
+    redirect '/tweets' if logged_in?
+    erb :'/users/signup'
   end
   
   post '/signup' do 
-    @user = User.create(username: User.slug(params[:username]), email: params[:email], password: params[:password]) 
-    if @user 
-      session[:id] = @user.id 
-      erb :'users/signedup'
+    if params[:username] != "" && params[:email] != "" && params[:password] != ""
+      @user = User.create(username: params[:username], email: params[:email], password: params[:password]) 
+      login(@user)
+      flash[:message] = "Welcome, #{@user.username}"
+      redirect "/tweets"
     else 
-      erb :'/users/failure'
+      redirect '/signup'
     end 
   end
   
   get '/login' do 
+    redirect '/tweets' if logged_in?
     erb :'/users/login'
   end 
   
   post '/login' do 
-    @user = User.find_by_slug(params[:username])
+    @user = User.find_by(username: params[:username])
     if @user && @user.authenticate(params[:password])
-      session[:id] = @user.id
-      erb :'users/loggedin'
-    else 
-      erb :'/users/failure'
+      login(@user)
+      flash[:message] = "You Have Logged in Succefuly"
+      redirect "/tweets"
     end
+    redirect '/login'
   end
   
   get '/logout' do 
-    session.clear
-    erb :'/users/logout'
+    if logged_in?
+      logout!
+    end 
+    redirect '/login'
+  end
+  
+    
+  get '/users/:slug' do 
+    @user = User.find_by_slug(params[:slug])
+    erb :'/users/show'
   end
 
 end
