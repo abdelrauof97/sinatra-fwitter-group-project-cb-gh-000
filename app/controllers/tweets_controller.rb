@@ -1,6 +1,6 @@
 require './config/environment'
 require 'rack-flash'
-
+require 'pry'
 
 class TweetsController < ApplicationController
   
@@ -13,33 +13,42 @@ class TweetsController < ApplicationController
   end 
     
   get '/tweets/new' do 
-    erb :'/tweets/new' if logged_in?
+    if logged_in?
+      erb :'/tweets/new'
+    else 
+      redirect '/login'  
+    end
+  end
+    
+  get '/tweets/:id' do
+    if logged_in?
+      @tweet = Tweet.find_by_id(params[:id])
+      @user = @tweet.user
+      erb :'tweets/show'
+    else
+      redirect to '/login'
+    end
   end
     
   post '/tweets' do 
     if params[:content] != ""
       @tweet = Tweet.create(content: params[:content])
       @user = User.find(current_user.id)
-      @user.tweets << @tweet
       @tweet.user = @user
+      @tweet.save
       redirect "/tweets/#{@tweet.id}"
     end 
     redirect '/tweets/new'
   end
     
-  get '/tweets/:id' do 
-    @tweet = Tweet.find(params[:id])
-    @user ||= @tweet.user
-    erb :'/tweets/show' if logged_in?
-  end
+
+
   
   get '/tweets/:id/edit' do 
     redirect '/login' unless logged_in?
     @tweet = Tweet.find(params[:id])
-    if current_user == @tweet.user
-      erb :'/tweets/edit' 
-    end
-    redirect '/tweets'
+    redirect '/tweets' unless @tweet.user == current_user
+    erb :'/tweets/edit'
   end
   
   patch '/tweets/:id' do 
@@ -51,15 +60,15 @@ class TweetsController < ApplicationController
     redirect "/tweets/#{@tweet.id}/edit"
   end
   
-  post '/tweets/:id/delete' do 
-    redirect '/login' unless logged_in?
+
+  delete '/tweets/:id/delete' do 
+    redirect '/' unless logged_in?
     @tweet = Tweet.find(params[:id])
-    if current_user == @tweet.user
+    if @tweet.user == current_user
       @tweet.delete
     end
     redirect '/tweets'
   end
-
     
 end 
 

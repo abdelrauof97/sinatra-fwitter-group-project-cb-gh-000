@@ -10,13 +10,10 @@
   <%if tweet.user %>
     <h4>Author Name: <a href="/users/<%= tweet.user.slug %>"><%= tweet.user.username %></a></h4>
   <% end %>
-  <h4>Tweet content</h4>
+  <h4><a href="/tweets/<%= tweet.id %>">Tweet content</a></h4>
   <h6><%= tweet.content %></h6>
   <br>
   <a href="/tweets/<%= tweet.id %>/edit">Edit Content</a>
   <br></br>
-  <form method="post" action="/tweets/<%= tweet.id %>/delete"> 
-    <input type="submit" value="Delete">
-  </form>
   <p>------------------------</p>
 <% end %>
